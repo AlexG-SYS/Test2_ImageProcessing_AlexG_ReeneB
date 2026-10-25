@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark" />
+  <title>ImageLab · Process an image</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Icon sprite (Lucide-style, 24×24, stroke-based). Referenced with <use href="#i-name">.
+       Inline so the UI has no CDN dependency. -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="i-flask" viewBox="0 0 24 24"><path d="M10 2v7.527a2 2 0 0 1-.211.896L4.72 20.55a1 1 0 0 0 .9 1.45h12.76a1 1 0 0 0 .9-1.45l-5.069-10.127A2 2 0 0 1 14 9.527V2"/><path d="M8.5 2h7"/><path d="M7 16h10"/></symbol>
+      <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></symbol>
+      <symbol id="i-cloud-upload" viewBox="0 0 24 24"><path d="M12 13v8"/><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="m8 17 4-4 4 4"/></symbol>
+      <symbol id="i-image" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></symbol>
+      <symbol id="i-gear" viewBox="0 0 24 24"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></symbol>
+      <symbol id="i-clipboard-list" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+      <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+      <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+      <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></symbol>
+      <symbol id="i-external-link" viewBox="0 0 24 24"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
+      <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></symbol>
+      <symbol id="i-loader" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></symbol>
+      <symbol id="i-alert-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></symbol>
+      <symbol id="i-alert-triangle" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></symbol>
+      <symbol id="i-circle-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></symbol>
+      <symbol id="i-x-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></symbol>
+    </defs>
+  </svg>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand__name">ImageLab</span>
+      <span class="brand__tag">Asynchronous Image Processing</span>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="page-head">
+      <h1>Process an image</h1>
+      <p>Upload an image and generate optimized variants in the background.</p>
+    </div>
+
+    <div class="layout">
+      <!-- ───────── Upload ───────── -->
+      <section class="card" id="upload-card" aria-labelledby="upload-title">
+        <div class="card__head">
+          <span class="card__icon"><svg class="ic" aria-hidden="true"><use href="#i-cloud-upload"/></svg></span>
+          <h2 class="card__title" id="upload-title">Upload image</h2>
+        </div>
+
+        <div class="dropzone" id="dropzone">
+          <div class="dz-empty" id="empty-state">
+            <svg class="ic dz-empty__icon" aria-hidden="true"><use href="#i-cloud-upload"/></svg>
+            <p class="dz-empty__title">Drag and drop an image here</p>
+            <p class="dz-empty__sub">or choose a file to get started</p>
+            <button type="button" class="btn btn--outline" data-choose>
+              <svg class="ic" aria-hidden="true"><use href="#i-image"/></svg>Choose image
+            </button>
+            <p class="dz-empty__hint">JPEG or PNG &middot; Maximum 10&nbsp;MB</p>
+          </div>
+
+          <!-- Image on top, file info underneath -->
+          <div class="dz-preview" id="preview-state" hidden>
+            <div class="preview-mat"><img id="preview-image" alt="Selected image preview" /></div>
+            <p class="file-name" id="preview-name"></p>
+            <div class="tags" id="preview-tags"></div>
+            <button type="button" class="btn btn--ghost btn--block" data-choose>
+              <svg class="ic" aria-hidden="true"><use href="#i-image"/></svg>Choose another image
+            </button>
+          </div>
+        </div>
+
+        <input type="file" id="file-input" accept="image/jpeg,image/png" hidden />
+
+        <button id="process-button" class="btn btn--primary btn--block btn--lg" type="button" disabled>
+          <svg class="ic" id="process-icon" aria-hidden="true"><use href="#i-upload"/></svg>
+          <span id="process-label">Process image</span>
+        </button>
+
+        <p class="alert alert--error" id="upload-error" role="alert" hidden>
+          <svg class="ic" aria-hidden="true"><use href="#i-alert-circle"/></svg>
+          <span id="upload-error-text"></span>
+        </p>
+      </section>
+
+      <!-- ───────── Job ───────── -->
+      <section class="card" id="job-card" aria-labelledby="job-title">
+        <div class="card__head">
+          <span class="card__icon"><svg class="ic" aria-hidden="true"><use href="#i-gear"/></svg></span>
+          <h2 class="card__title" id="job-title">Processing job</h2>
+        </div>
+
+        <!-- [V2] UI-01: observation mode selector. Visible before a job exists so the mode
+             can be chosen BEFORE observing, and can be switched while a job runs. -->
+        <fieldset class="mode-select" id="mode-select">
+          <legend>Observation mode</legend>
+          <label class="mode-option"><input type="radio" name="observation-mode" value="short" checked /> Short polling <span class="mode-hint">every 1 s</span></label>
+          <label class="mode-option"><input type="radio" name="observation-mode" value="long" /> Long polling <span class="mode-hint">held up to 20 s</span></label>
+        </fieldset>
+
+        <div class="empty" id="job-empty">
+          <!-- ghost preview of the progress track -->
+          <ol class="timeline timeline--ghost" aria-hidden="true">
+            <li class="tl-step"><span class="tl-marker"></span><span class="tl-text"><span class="tl-label">Upload accepted</span></span></li>
+            <li class="tl-step"><span class="tl-marker"></span><span class="tl-text"><span class="tl-label">Original stored</span></span></li>
+            <li class="tl-step"><span class="tl-marker"></span><span class="tl-text"><span class="tl-label">Generating variants</span></span></li>
+            <li class="tl-step"><span class="tl-marker"></span><span class="tl-text"><span class="tl-label">Complete</span></span></li>
+          </ol>
+          <p class="empty__title">No active job</p>
+          <p class="empty__hint">Upload an image to create a processing job</p>
+        </div>
+
+        <div id="job-active" hidden>
+          <div class="job-strip" id="job-strip">
+            <span id="job-status-badge" class="status-badge" role="status"></span>
+            <span class="job-strip__id"><span class="job-id__label">Job</span> <span class="job-id" id="job-id-label"></span></span>
+          </div>
+
+          <!-- [V2] UI-01: selected mode, last observed version, stage and progress -->
+          <dl class="job-facts">
+            <div><dt>Mode</dt><dd id="job-mode-label"></dd></div>
+            <div><dt>Version</dt><dd id="job-version-label"></dd></div>
+            <div><dt>Stage</dt><dd id="job-stage-label"></dd></div>
+          </dl>
+          <div class="progress-block">
+            <label for="job-progress">Variants ready: <span id="job-progress-text">0 of 3</span></label>
+            <progress id="job-progress" max="3" value="0"></progress>
+          </div>
+          <!-- [V2] EXP-02: shown ONLY when the experimental simulation is running; clearly labelled -->
+          <p class="notice notice--sim" id="job-sim-label" hidden>Simulated progress (experiment workload, not image processing): step <span id="job-sim-step"></span></p>
+
+          <ol class="timeline">
+            <li id="timeline-accepted" class="tl-step">
+              <span class="tl-marker"><svg class="ic tl-ic tl-ic--check" aria-hidden="true"><use href="#i-check"/></svg><svg class="ic tl-ic tl-ic--x" aria-hidden="true"><use href="#i-x"/></svg></span>
+              <span class="tl-text"><span class="tl-label">Upload accepted</span><span class="tl-time"></span></span>
+            </li>
+            <li id="timeline-stored" class="tl-step">
+              <span class="tl-marker"><svg class="ic tl-ic tl-ic--check" aria-hidden="true"><use href="#i-check"/></svg><svg class="ic tl-ic tl-ic--x" aria-hidden="true"><use href="#i-x"/></svg></span>
+              <span class="tl-text"><span class="tl-label">Original stored</span><span class="tl-time"></span></span>
+            </li>
+            <li id="timeline-generating" class="tl-step">
+              <span class="tl-marker"><svg class="ic tl-ic tl-ic--check" aria-hidden="true"><use href="#i-check"/></svg><svg class="ic tl-ic tl-ic--x" aria-hidden="true"><use href="#i-x"/></svg></span>
+              <span class="tl-text"><span class="tl-label">Generating variants</span><span class="tl-time"></span></span>
+            </li>
+            <li id="timeline-complete" class="tl-step">
+              <span class="tl-marker"><svg class="ic tl-ic tl-ic--check" aria-hidden="true"><use href="#i-check"/></svg><svg class="ic tl-ic tl-ic--x" aria-hidden="true"><use href="#i-x"/></svg></span>
+              <span class="tl-text"><span class="tl-label">Complete</span><span class="tl-time"></span></span>
+            </li>
+          </ol>
+
+          <div id="job-aside">
+            <p class="notice" id="polling-indicator" hidden>
+              <svg class="ic ic--spin" aria-hidden="true"><use href="#i-loader"/></svg>
+              <span id="polling-indicator-text">Checking status automatically &middot; every 1 second</span>
+              <!-- [V2] cancels observation only; the worker keeps processing -->
+              <button id="stop-observing-button" class="btn btn--ghost btn--sm" type="button">Stop watching</button>
+            </p>
+            <!-- [V2] shown after "Stop watching"; the job continues on the server -->
+            <div class="notice" id="job-observation-stopped" hidden>
+              <span>Observation stopped. The job keeps running on the server.</span>
+              <button id="resume-button" class="btn btn--outline btn--sm" type="button">Resume</button>
+            </div>
+
+            <div class="notice notice--error" id="job-retrieval-error" hidden>
+              <svg class="ic" aria-hidden="true"><use href="#i-alert-circle"/></svg>
+              <span>Unable to check status. The job may still be running.</span>
+              <button id="try-again-button" class="btn btn--outline btn--sm" type="button">
+                <svg class="ic" aria-hidden="true"><use href="#i-refresh"/></svg>Try again
+              </button>
+            </div>
+          </div>
+          <!-- [V2] Experiment evidence: request counters + raw client log download -->
+          <details class="experiment" id="experiment-panel">
+            <summary>Experiment log</summary>
+            <pre id="experiment-stats">No requests yet.</pre>
+            <button id="download-log-button" class="btn btn--outline btn--sm" type="button">Download client log (JSON)</button>
+          </details>
+        </div>
+      </section>
+
+      <!-- ───────── Results ───────── -->
+      <section class="card" id="results-card" aria-labelledby="results-title">
+        <div class="card__head">
+          <span class="card__icon"><svg class="ic" aria-hidden="true"><use href="#i-image"/></svg></span>
+          <h2 class="card__title" id="results-title">Generated images</h2>
+        </div>
+
+        <div class="empty" id="results-empty">
+          <div class="ghost-row" aria-hidden="true">
+            <span class="ghost-frame"><svg class="ic" aria-hidden="true"><use href="#i-image"/></svg></span>
+            <span class="ghost-frame"><svg class="ic" aria-hidden="true"><use href="#i-image"/></svg></span>
+            <span class="ghost-frame"><svg class="ic" aria-hidden="true"><use href="#i-image"/></svg></span>
+          </div>
+          <p class="empty__title">No images generated yet</p>
+          <p class="empty__hint">Processed image variants will appear here</p>
+        </div>
+
+        <div class="empty empty--error" id="results-failed" hidden>
+          <span class="empty__icon empty__icon--error"><svg class="ic" aria-hidden="true"><use href="#i-alert-triangle"/></svg></span>
+          <p class="empty__title">Processing failed</p>
+          <p class="empty__hint" id="results-failed-message"></p>
+          <p class="empty__hint">Choose another image to try again.</p>
+        </div>
+
+        <div class="results-grid" id="results-grid" hidden></div>
+      </section>
+    </div>
+  </main>
+
+  <script src="event-emitter.js"></script>
+  <script src="state.js"></script>
+  <script src="data-service.js"></script>
+  <script src="render.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
